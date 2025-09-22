@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 
 class ApiService {
@@ -8,78 +9,82 @@ class ApiService {
   ApiService({http.Client? client}) : client = client ?? http.Client();
 
   Future<List<Map<String, dynamic>>> fetchCoinList() async {
-    // Step 1: Fetch coin metadata
-    final res = await client.get(Uri.parse('$_base/coins/list'));
-    if (res.statusCode != 200) throw Exception('Failed to fetch coins list');
-    final List rawList = jsonDecode(res.body) as List;
+    try {
+      final res = await client.get(Uri.parse('$_base/coins/list'));
+      if (res.statusCode != 200) throw Exception('Failed to fetch coins list (Status: ${res.statusCode})');
 
-    // Convert to Map list
-    final List<Map<String, dynamic>> coins =
-    List<Map<String, dynamic>>.from(rawList);
+      final List rawList = jsonDecode(res.body) as List;
+      final List<Map<String, dynamic>> coins = List<Map<String, dynamic>>.from(rawList);
 
-    // Step 2: Fetch prices in chunks (max 250 ids at once)
-    const chunkSize = 250;
-    Map<String, double> priceMap = {};
-    for (var i = 0; i < coins.length; i += chunkSize) {
-      final chunk = coins.skip(i).take(chunkSize).toList();
-      final ids = chunk.map((e) => e['id']).join(',');
-      final priceRes = await client.get(
-        Uri.parse('$_base/simple/price?ids=$ids&vs_currencies=usd'),
-      );
-      if (priceRes.statusCode == 200) {
-        final Map body = jsonDecode(priceRes.body);
-        body.forEach((id, val) {
-          // Check if 'usd' exists and is not null
-          final usdValue = val['usd'];
-          if (usdValue != null) {
-            // Convert to double safely
-            final p = (usdValue as num).toDouble();
-            priceMap[id] = p;
+      const chunkSize = 250;
+      Map<String, double> priceMap = {};
+
+      for (var i = 0; i < coins.length; i += chunkSize) {
+        final chunk = coins.skip(i).take(chunkSize).toList();
+        final ids = chunk.map((e) => e['id']).join(',');
+
+        try {
+          final priceRes = await client.get(Uri.parse('$_base/simple/price?ids=$ids&vs_currencies=usd'));
+          if (priceRes.statusCode == 200) {
+            final Map body = jsonDecode(priceRes.body) as Map;
+            body.forEach((id, val) {
+              final usdValue = val['usd'];
+              priceMap[id] = (usdValue is num) ? usdValue.toDouble() : 0.0;
+            });
           } else {
-            // Handle null values, e.g., set to 0 or skip
-            priceMap[id] = 0.0; // or you can skip: return;
+            debugPrint('Warning: Failed to fetch prices for chunk ($ids), Status: ${priceRes.statusCode}');
           }
-        });
+        } catch (e) {
+          debugPrint('Error fetching prices for chunk ($ids): $e');
+        }
       }
 
+      for (final coin in coins) {
+        final id = coin['id'] as String;
+        coin['currentPrice'] = priceMap[id] ?? 0.0;
+        coin['oldPrice'] = 0.0;
+      }
+
+      return coins;
+    } catch (e) {
+      debugPrint('Error in fetchCoinList: $e');
+      return [];
     }
-
-
-
-    // Step 3: Attach prices
-    for (final coin in coins) {
-      final id = coin['id'] as String;
-      coin['currentPrice'] = priceMap[id] ?? 0.0;
-      coin['oldPrice'] = 0.0; // first fetch, no old price yet
-    }
-
-    return coins;
   }
 
-
-  // Simple price map: {coinId: price}
   Future<Map<String, double>> fetchPrices(List<String> ids) async {
     if (ids.isEmpty) return {};
-    final idStr = ids.join(',');
-    final res = await client.get(Uri.parse('$_base/simple/price?ids=$idStr&vs_currencies=usd'));
-    if (res.statusCode != 200) throw Exception('Failed to fetch prices');
-    final Map body = jsonDecode(res.body) as Map;
-    final Map<String, double> out = {};
-    body.forEach((k, v) {
-      final val = v['usd'];
-      out[k] = (val is num) ? val.toDouble() : double.tryParse('$val') ?? 0.0;
-    });
-    return out;
+    try {
+      final idStr = ids.join(',');
+      final res = await client.get(Uri.parse('$_base/simple/price?ids=$idStr&vs_currencies=usd'));
+      if (res.statusCode != 200) throw Exception('Failed to fetch prices (Status: ${res.statusCode})');
+
+      final Map body = jsonDecode(res.body) as Map;
+      final Map<String, double> out = {};
+      body.forEach((k, v) {
+        final val = v['usd'];
+        out[k] = (val is num) ? val.toDouble() : double.tryParse('$val') ?? 0.0;
+      });
+      return out;
+    } catch (e) {
+      debugPrint('Error in fetchPrices: $e');
+      return {};
+    }
   }
 
-  // Market endpoint returns price + image for logos (good for bonus)
   Future<List<Map<String, dynamic>>> fetchMarketData(List<String> ids) async {
     if (ids.isEmpty) return [];
-    final idChunk = ids.join(',');
-    final url = '$_base/coins/markets?vs_currency=usd&ids=$idChunk&order=market_cap_desc&per_page=250&page=1&sparkline=false';
-    final res = await client.get(Uri.parse(url));
-    if (res.statusCode != 200) throw Exception('Failed to fetch market data');
-    final List list = jsonDecode(res.body) as List;
-    return List<Map<String, dynamic>>.from(list);
+    try {
+      final idChunk = ids.join(',');
+      final url = '$_base/coins/markets?vs_currency=usd&ids=$idChunk&order=market_cap_desc&per_page=250&page=1&sparkline=false';
+      final res = await client.get(Uri.parse(url));
+      if (res.statusCode != 200) throw Exception('Failed to fetch market data (Status: ${res.statusCode})');
+
+      final List list = jsonDecode(res.body) as List;
+      return List<Map<String, dynamic>>.from(list);
+    } catch (e) {
+      debugPrint('Error in fetchMarketData: $e');
+      return [];
+    }
   }
 }
