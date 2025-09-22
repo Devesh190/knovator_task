@@ -1,0 +1,106 @@
+{
+  "_note1": "KEEP THIS FILE! Check it into a version control system (VCS) like git.",
+  "_note2": "ObjectBox manages crucial IDs for your object model. See docs for details.",
+  "_note3": "If you have VCS merge conflicts, you must resolve them according to ObjectBox docs.",
+  "entities": [
+    {
+      "id": "1:6444446014792710638",
+      "lastPropertyId": "9:1889531293741589864",
+      "name": "Coin",
+      "properties": [
+        {
+          "id": "1:1696720278387754550",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:9175985621961376711",
+          "name": "coinId",
+          "type": 9
+        },
+        {
+          "id": "3:80961279659548289",
+          "name": "name",
+          "type": 9
+        },
+        {
+          "id": "4:7567578375909215418",
+          "name": "symbol",
+          "type": 9
+        },
+        {
+          "id": "5:8095920031051178714",
+          "name": "nameLower",
+          "type": 9
+        },
+        {
+          "id": "6:6531257355849286265",
+          "name": "symbolLower",
+          "type": 9
+        },
+        {
+          "id": "7:6303093867116285672",
+          "name": "imageUrl",
+          "type": 9
+        },
+        {
+          "id": "8:7965919883817501716",
+          "name": "currentPrice",
+          "type": 8
+        },
+        {
+          "id": "9:1889531293741589864",
+          "name": "oldPrice",
+          "type": 8
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "2:3278131889892222054",
+      "lastPropertyId": "5:297106454535569600",
+      "name": "Holding",
+      "properties": [
+        {
+          "id": "1:5132298923911447947",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:4005682922457457871",
+          "name": "coinId",
+          "type": 9
+        },
+        {
+          "id": "3:2199904772926908482",
+          "name": "quantity",
+          "type": 8
+        },
+        {
+          "id": "4:1019782086024334378",
+          "name": "lastPrice",
+          "type": 8
+        },
+        {
+          "id": "5:297106454535569600",
+          "name": "lastUpdatedEpoch",
+          "type": 6
+        }
+      ],
+      "relations": []
+    }
+  ],
+  "lastEntityId": "2:3278131889892222054",
+  "lastIndexId": "0:0",
+  "lastRelationId": "0:0",
+  "lastSequenceId": "0:0",
+  "modelVersion": 5,
+  "modelVersionParserMinimum": 5,
+  "retiredEntityUids": [],
+  "retiredIndexUids": [],
+  "retiredPropertyUids": [],
+  "retiredRelationUids": [],
+  "version": 1
+}
