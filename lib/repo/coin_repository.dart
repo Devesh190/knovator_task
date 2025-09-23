@@ -11,8 +11,7 @@ class CoinRepository {
   CoinRepository(this._db, this._api);
 
   Future<void> ensureCoinList() async {
-    // if (_db.coinBox.isEmpty()) {
-    _db.coinBox.removeAll();
+    if (_db.coinBox.isEmpty()) {
       final list = await _api.fetchCoinList();
       final coins = list.map((e) {
         return Coin(
@@ -24,7 +23,7 @@ class CoinRepository {
         );
       }).toList();
       _db.coinBox.putMany(coins);
-    // }
+    }
   }
 
 

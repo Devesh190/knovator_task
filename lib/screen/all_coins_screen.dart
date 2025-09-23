@@ -173,9 +173,14 @@ class _AllCoinsScreenState extends State<AllCoinsScreen> {
                       ? Image.network(coin.imageUrl!, width: 32, height: 32)
                       : const CircleAvatar(child: Icon(Icons.monetization_on)),
                   title: Text("${coin.name} (${coin.symbol})"),
-                  subtitle: Text("\$${coin.currentPrice}"),
+                  subtitle: Row(
+                    children: [
+                      Text("\$${coin.currentPrice}"),
+                      if (arrow != null) arrow,
+                    ],
+                  ),
                   trailing: SizedBox(
-                    width: 100,
+                    width: 120,
                     child: Row(
                       children: [
                         Expanded(
