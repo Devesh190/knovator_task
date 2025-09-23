@@ -164,7 +164,6 @@ class _AllCoinsScreenState extends State<AllCoinsScreen> {
                   arrow = const Icon(Icons.arrow_downward, color: Colors.red);
                 }
 
-                // Controller for the TextField
                 final TextEditingController _controller =
                 TextEditingController(text: qty.toString());
 

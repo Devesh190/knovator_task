@@ -20,6 +20,9 @@ flutter pub run build_runner build --delete-conflicting-outputs
 flutter run
 ```
 
+📹 Demo Video
+
+👉 Recorded Demo :- https://drive.google.com/file/d/1TQjhz0mdoa6XJke1AVkDtR0r7zNgYo0l/view?usp=drive_link
 
 ## 🏗 Architectural Choices
 
